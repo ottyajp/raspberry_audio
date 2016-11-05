@@ -15,22 +15,7 @@ list<string> str_list;
 int main(void){
     thread t1(output);
 
-    DIR* dp=opendir("/home/pi/music/");
-    if(dp!=NULL){
-        struct dirent* dent;
-        do{
-            dent = readdir(dp);
-            if(dent!=NULL){
-                string str = string(dent->d_name);
-                if(str != "."){
-                    if(str != ".."){
-                    str_list.push_back(str);
-                    }
-                }
-            }
-        }while(dent!=NULL);
-        closedir(dp);
-    }
+    search_file();
 
     if(wiringPiSetupGpio() == -1){
         cout<<"error wiringPi setup"<<endl;
@@ -166,4 +151,26 @@ string get_time(){
     str<<time_st->tm_min<<":";
     str<<time_st->tm_sec;
     return str.str();
+}
+
+int selects(const dirent *dir){
+    if(dir->d_name[0] == '.'){
+        return 0;
+    }
+    return 1;
+}
+
+void search_file(){
+    const char *dirname = "/home/pi/music/";
+    struct dirent **namelist;
+    int r = scandir(dirname, &namelist, selects, alphasort);
+    if(r==-1){
+        cout<<"file scan error"<<endl;
+    }
+    // r : entry count
+    for(int i=0; i<r; ++i){
+        str_list.push_back(namelist[i]->d_name);
+        free(namelist[i]);
+    }
+    free(namelist);
 }

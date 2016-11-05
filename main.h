@@ -30,3 +30,7 @@ void screen_set(int in);
 void output();
 
 string get_time();
+
+void search_file();
+
+int selects(const dirent *dir);
