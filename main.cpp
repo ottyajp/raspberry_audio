@@ -21,7 +21,12 @@ int main(void){
         do{
             dent = readdir(dp);
             if(dent!=NULL){
-                str_list.push_back(dent->d_name);
+                string str = string(dent->d_name);
+                if(str != "."){
+                    if(str != ".."){
+                    str_list.push_back(str);
+                    }
+                }
             }
         }while(dent!=NULL);
         closedir(dp);
