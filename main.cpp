@@ -6,12 +6,26 @@ using namespace std;
 #define LED2 25
 #define SWITCH1 24
 #define SWITCH2 23
+#define SWITCH3 10
 
 bool end_flag = false;
 int i = 0;
+list<string> str_list;
 
 int main(void){
     thread t1(output);
+
+    DIR* dp=opendir("/home/pi/music/");
+    if(dp!=NULL){
+        struct dirent* dent;
+        do{
+            dent = readdir(dp);
+            if(dent!=NULL){
+                str_list.push_back(dent->d_name);
+            }
+        }while(dent!=NULL);
+        closedir(dp);
+    }
 
     if(wiringPiSetupGpio() == -1){
         cout<<"error wiringPi setup"<<endl;
@@ -21,6 +35,7 @@ int main(void){
     //pin Settings
     pinMode(SWITCH1, INPUT);
     pinMode(SWITCH2, INPUT);
+    pinMode(SWITCH3, INPUT);
     pinMode(LED1, OUTPUT);
     pinMode(LED2, OUTPUT);
 
@@ -59,8 +74,12 @@ int main(void){
         }
         if(digitalRead(SWITCH1)==1 && digitalRead(SWITCH2)==1){
             end_flag = true;
-        break;
-    }
+            break;
+        }
+        if(digitalRead(SWITCH3)==1){
+            end_flag = true;
+            break;
+        }
     delay(10);
     }
 
@@ -100,11 +119,11 @@ void screen_set(int in){
 }
 
 void output(){
-    list<string> list;
-    list.push_back("ndendende");
-    list.push_back(".....");
-    list.push_back("nya-----nde");
-    auto itr = list.begin();
+//    list<string> list;
+//    list.push_back("ndendende");
+//    list.push_back(".....");
+//    list.push_back("nya-----nde");
+    auto itr = str_list.begin();
     int p;
     for(;;){
         if(end_flag){
@@ -116,7 +135,7 @@ void output(){
         screen_set(SCR::CLEAR);
         cout<<get_time()<<flush;
         screen_set(SCR::DOWN);
-        for(itr = list.begin(); itr!=list.end();++itr){
+        for(itr = str_list.begin(); itr!=str_list.end();++itr){
             if(p == i){
                 cout<<"* "<<flush;
             }else{
